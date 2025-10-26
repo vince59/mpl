@@ -1,0 +1,50 @@
+// src/grammar.lalrpop
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum crate::lexer::Tok {
+        "import" => crate::lexer::Tok::Import,
+        "main"   => crate::lexer::Tok::Main,
+        "print"  => crate::lexer::Tok::Print,
+        "println"  => crate::lexer::Tok::Println,
+
+        "(" => crate::lexer::Tok::LParen,
+        ")" => crate::lexer::Tok::RParen,
+        "{" => crate::lexer::Tok::LBrace,
+        "}" => crate::lexer::Tok::RBrace,
+
+        // Terminal avec valeur : type à droite, chemin complet aussi
+        Str => crate::lexer::Tok::Str(<String>),
+    }
+}
+
+use crate::ast::{Program, Stmt};
+
+pub Program: Program = {
+    <imports:ImportStmt*> <body:MainFn> => Program { imports, body }
+};
+
+ImportStmt: String = {
+    "import" <s:Str> => s
+};
+
+MainFn: Vec<Stmt> = {
+    "main" "(" ")" <b:Block> => b
+};
+
+Block: Vec<Stmt> = {
+    "{" <ss:Stmts> "}" => ss
+};
+
+Stmts: Vec<Stmt> = {
+    => vec![],
+    <v:Stmts> <s:Stmt> => { let mut v = v; v.push(s); v }
+};
+
+Stmt: Stmt = {
+    "print" "(" <s:Str> ")" => Stmt::Print(s),
+    "println" "(" <s:Str> ")" => Stmt::Println(s),
+};

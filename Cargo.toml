@@ -1,0 +1,12 @@
+[package]
+name = "mpl_lalrpop_logos"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lalrpop-util = "0.22"
+logos = "0.15"
+thiserror = "2.0.17"
+
+[build-dependencies]
+lalrpop = "0.22"
